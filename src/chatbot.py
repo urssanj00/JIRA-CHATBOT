@@ -6,6 +6,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 from .processor.text_processor import TextProcessor
 from .processor.intent_classifier import IntentClassifier
 from .models.embeddings import EmbeddingModel
+from src.logger_config import logger
 
 
 class JIRAChatbot:
@@ -18,23 +19,28 @@ class JIRAChatbot:
         self.prepare_data()
 
     def prepare_data(self):
+        logger.info(f"0. prepare_data  ")
+
         """Prepare dataset"""
         self.df['combined_text'] = (
-                self.df['summary'].fillna('') + ' ' +
-                self.df['description'].fillna('') + ' ' +
-                self.df['resolution'].fillna('')
+                self.df['Summary'].fillna('') + ' ' +
+                self.df['Description'].fillna('') + ' ' +
+                self.df['Resolution'].fillna('')
         )
+        logger.info(f"1. prepare_data  ")
 
         # Generate embeddings
         self.issue_embeddings = np.vstack([
             self.embedding_model.get_sentence_embeddings(text)
             for text in self.df['combined_text']
         ])
+        logger.info(f"2. prepare_data  ")
 
         # Extract NLP features
         self.df['nlp_features'] = self.df['combined_text'].apply(
             self.text_processor.preprocess
         )
+        logger.info(f"3. prepare_data  ")
 
     def analyze_sentiment(self, text):
         """Analyze text sentiment"""
