@@ -1,3 +1,11 @@
+import pandas as pd
+import numpy as np
+
+from processor.text_processor import TextProcessor
+from processor.intent_classifier import IntentClassifier
+from models.embeddings import EmbeddingModel
+from logger_config import logger
+
 class JIRAChatbot:
     def __init__(self, data_path, field_mapping=None):
         """Initialize JIRA chatbot

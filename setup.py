@@ -10,12 +10,12 @@ setup(
         for line in open("requirements.txt")
         if line.strip() and not line.startswith("#")
     ],
-    author="Your Name",
-    author_email="your.email@example.com",
+    author="Sanjeev Kumar Pandey",
+    author_email="csaa.sanjeev@gmial.com",
     description="A JIRA chatbot using NLP techniques",
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
-    url="https://github.com/yourusername/jira-chatbot",
+    url="https://github.com/urssanj00/JIRA-CHATBOT/tree/DEV_1.0",
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",

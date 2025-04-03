@@ -5,6 +5,11 @@
 conda create -n jira_chatbot_env python=3.9 -y
 conda activate jira_chatbot_env
 
+
+python -m pip install --upgrade pip setuptools wheel
+pip install --no-cache-dir blis
+
+
 # Install requirements
 pip install -r requirements.txt
 
