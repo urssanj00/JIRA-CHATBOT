@@ -17,7 +17,9 @@ pip install -r requirements.txt
 python -m spacy download en_core_web_sm
 
 # Download NLTK data
-python -c "import nltk; nltk.download(['punkt', 'stopwords', 'averaged_perceptron_tagger', 'maxent_ne_chunker', 'words'])"
+#python -c "import nltk; nltk.download(['punkt', 'stopwords', 'averaged_perceptron_tagger', 'maxent_ne_chunker', 'words'])"
+python -c "import nltk; nltk.download(['punkt', 'punkt_tab','stopwords', 'averaged_perceptron_tagger', 'maxent_ne_chunker', 'words'], download_dir='C:/Sanjeev/VNIT_CLASSES/NLP_PROJ/JIRA-CHATBOT/nltk_data')"
+
 
 # Install the package in development mode
 pip install -e .

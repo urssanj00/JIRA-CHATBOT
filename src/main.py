@@ -4,7 +4,7 @@ from src.chatbot import JIRAChatbot
 
 def main():
     # Initialize chatbot
-    chatbot = JIRAChatbot('data/jira_dataset.csv')
+    chatbot = JIRAChatbot('../data/jira_dataset.csv')
 
     print("JIRA Chatbot: Hello! How can I help you? (Type 'quit' to exit)")
 

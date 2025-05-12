@@ -13,13 +13,15 @@ class PropertiesConfig:
         return "COLAB_GPU" in os.environ or "COLAB_BACKEND_VERSION" in os.environ
 
     #test comment
-    def __init__(self, properties_file_name="sensor-data.properties"):
+    def __init__(self, properties_file_name="config.properties"):
+        print(f'__file__ : {__file__}')
         if PropertiesConfig.is_running_in_colab():
             properties_file_name = os.path.join(os.path.dirname(__file__), 'config_collab.properties')
-            print(f"            LOADING PROPERTIES {properties_file_name} FROM COLLAB ENVIRONMENT")
+            print(f"            0. LOADING PROPERTIES {properties_file_name} FROM COLLAB ENVIRONMENT")
         else:
-            properties_file_name = os.path.join(os.path.dirname(__file__), 'config.properties')
-            print(f"            LOADING PROPERTIES {properties_file_name} FROM LOCAL ENVIRONMENT")
+           # properties_file_name = os.path.join(os.path.dirname(__file__), 'config.properties')
+            properties_file_name = os.path.join(os.path.dirname('.'), 'config.properties')
+            print(f"            1. LOADING PROPERTIES {properties_file_name} FROM LOCAL ENVIRONMENT")
 
         configs = Properties()
         with open(properties_file_name, 'rb') as read_prop:

@@ -1,15 +1,17 @@
 import pandas as pd
 import numpy as np
+from sklearn.metrics.pairwise import cosine_similarity
 
 from processor.text_processor import TextProcessor
 from processor.intent_classifier import IntentClassifier
 from models.embeddings import EmbeddingModel
 from logger_config import logger
 
+
 class JIRAChatbot:
     def __init__(self, data_path, field_mapping=None):
         """Initialize JIRA chatbot
-        
+
         Args:
             data_path (str): Path to the CSV file containing JIRA data
             field_mapping (dict): Optional mapping of custom field names to default names
@@ -25,19 +27,21 @@ class JIRAChatbot:
             'Project_key': 'Project key',
             'Project_name': 'Project name'
         }
-        
+
         try:
             self.df = pd.read_csv(data_path)
+            logger.info("0. __init__ : read csv completed")
+
             # Rename columns if custom mapping provided
             if field_mapping:
                 self.df = self.df.rename(columns=field_mapping)
-                
+
             # Handle missing columns
             required_columns = ['Summary', 'Description', 'Resolution']
             for col in required_columns:
                 if col not in self.df.columns:
                     self.df[col] = ''
-                    
+
         except Exception as e:
             logger.error(f"Error loading data: {str(e)}")
             raise
@@ -48,10 +52,59 @@ class JIRAChatbot:
         self.issue_embeddings = None
         self.prepare_data()
 
+    def find_similar_issues(self, query, n=5):
+        """Find similar issues based on query
+
+        Args:
+            query (str): The search query
+            n (int): Number of similar issues to return (default: 5)
+
+        Returns:
+            pandas.DataFrame: DataFrame containing n most similar issues
+        """
+        try:
+            # Get query embedding
+            query_embedding = self.embedding_model.get_sentence_embeddings(
+                query)
+            if len(query_embedding.shape) == 2:
+                # Take first embedding if batch returned
+                query_embedding = query_embedding[0]
+
+            # Calculate similarities using cosine similarity
+            similarities = cosine_similarity(
+                [query_embedding],
+                self.issue_embeddings
+            )[0]
+
+            # Get top n similar issues
+            most_similar_indices = similarities.argsort()[-n:][::-1]
+            return self.df.iloc[most_similar_indices]
+
+        except Exception as e:
+            logger.error(f"Error finding similar issues: {str(e)}")
+            # Return empty DataFrame with same columns as self.df
+            return pd.DataFrame(columns=self.df.columns)
+
+    def analyze_sentiment(self, text):
+        """Analyze text sentiment
+
+        Args:
+            text (str): Text to analyze
+
+        Returns:
+            float: Sentiment score between -1 (negative) and 1 (positive)
+        """
+        try:
+            from textblob import TextBlob
+            return TextBlob(str(text)).sentiment.polarity
+        except Exception as e:
+            logger.error(f"Error analyzing sentiment: {str(e)}")
+            return 0.0
+
     def prepare_data(self):
         """Prepare dataset with caching"""
         logger.info("0. prepare_data")
-        
+
         try:
             # Create combined text field with better handling of missing values
             self.df['combined_text'] = (
@@ -67,10 +120,12 @@ class JIRAChatbot:
             batch_size = 32
             embeddings_list = []
             for i in range(0, len(self.df), batch_size):
-                batch_texts = self.df['combined_text'].iloc[i:i+batch_size].tolist()
-                batch_embeddings = self.embedding_model.get_sentence_embeddings(batch_texts)
+                batch_texts = self.df['combined_text'].iloc[i:i +
+                                                            batch_size].tolist()
+                batch_embeddings = self.embedding_model.get_sentence_embeddings(
+                    batch_texts)
                 embeddings_list.append(batch_embeddings)
-            
+
             self.issue_embeddings = np.vstack(embeddings_list)
             logger.info("2. prepare_data")
 
@@ -79,7 +134,7 @@ class JIRAChatbot:
                 lambda x: self._safe_preprocess(x)
             )
             logger.info("3. prepare_data")
-            
+
         except Exception as e:
             logger.error(f"Error in prepare_data: {str(e)}")
             raise
@@ -87,6 +142,8 @@ class JIRAChatbot:
     def _safe_preprocess(self, text):
         """Safely preprocess text with error handling"""
         try:
+            logger.info(f"_safe_preprocess : text {text}")
+
             return self.text_processor.preprocess(text)
         except Exception as e:
             logger.warning(f"Error preprocessing text: {str(e)}")
@@ -123,9 +180,13 @@ class JIRAChatbot:
     def get_response(self, query):
         """Generate response to query"""
         try:
+            logger.info(f"get_response : query {query}")
             # Process query
             features = self.text_processor.preprocess(query)
+            logger.info(f"get_response : features {features}")
+
             intent = self.intent_classifier.classify(features)
+            logger.info(f"get_response : intent {intent}")
 
             # Handle analytics intent
             if intent in ['analytics', 'status', 'priority', 'type', 'project']:
@@ -133,6 +194,7 @@ class JIRAChatbot:
 
             # Find similar issues
             similar_issues = self.find_similar_issues(query)
+            logger.info(f"get_response : similar_issues {similar_issues}")
 
             # Generate response
             response = "Found similar issues:\n\n"
