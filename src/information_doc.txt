@@ -1,0 +1,5 @@
+The Eiffel Tower is located in Paris.
+The Great Wall of China is visible from space.
+The Statue of Liberty is in New York.
+Delhi is capital of India.
+Delhi is located in India.

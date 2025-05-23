@@ -330,17 +330,17 @@ if __name__ == "__main__":
     # Uncomment one of these sections to either pre-compute or run with pre-computed data
     
     # ------ Pre-compute data (run once) ------
-    csv_path = r'D:\VNIT_Mtech\Subjects\11.NLP\NLP_project\Jira_dataset\archive\GFG_FINAL.csv'
-    output_dir = r'D:\VNIT_Mtech\Subjects\11.NLP\NLP_project\precomputed_data'
+    csv_path = r'C:\Sanjeev\VNIT_CLASSES\NLP_PROJ\dataset\GFG_FINAL.csv'
+    output_dir = r'C:\Sanjeev\VNIT_CLASSES\NLP_PROJ\precomputed_data'
     
-    result = precompute_data(csv_path, output_dir)
-    print(f"Pre-computed data saved to {output_dir}")
+    #result = precompute_data(csv_path, output_dir)
+    #print(f"Pre-computed data saved to {output_dir}")
     
     # ------ Run chatbot with pre-computed data (fast startup) ------
     # Uncomment this section after pre-computing data
     
-    # embeddings_path = r'D:\VNIT_Mtech\Subjects\11.NLP\NLP_project\precomputed_data\embeddings.npy'
-    # texts_path = r'D:\VNIT_Mtech\Subjects\11.NLP\NLP_project\precomputed_data\text_chunks.pkl'
-    # metadata_path = r'D:\VNIT_Mtech\Subjects\11.NLP\NLP_project\precomputed_data\metadata.pkl'
+    embeddings_path = r'C:\Sanjeev\VNIT_CLASSES\NLP_PROJ\precomputed_data\embeddings.npy'
+    texts_path = r'C:\Sanjeev\VNIT_CLASSES\NLP_PROJ\precomputed_data\text_chunks.pkl'
+    metadata_path = r'C:\Sanjeev\VNIT_CLASSES\NLP_PROJ\precomputed_data\metadata.pkl'
     
-    # chatbot_with_precomputed_data(embeddings_path, texts_path, metadata_path)
+    chatbot_with_precomputed_data(embeddings_path, texts_path, metadata_path)
