@@ -1,52 +1,99 @@
 from flask import Flask, request, jsonify
+import json
+import re
 from sentence_transformers import SentenceTransformer, util
 import threading
 
+MODEL_NAME = "all-MiniLM-L6-v2"
+model = SentenceTransformer(MODEL_NAME)
+
 app = Flask(__name__)
 
-MODEL_NAME = "all-MiniLM-L6-v2"
-#CORPUS_FILE = "information_doc.txt"
-CORPUS_FILE = r"C:\Sanjeev\VNIT_CLASSES\NLP_PROJ\dataset\output.json"
+issues = []
+issues_lock = threading.Lock()
 
-# Globals
-model = SentenceTransformer(MODEL_NAME)
-corpus = []
-corpus_embeddings = None
-lock = threading.Lock()
+filename =  r"C:\Sanjeev\VNIT_CLASSES\NLP_PROJ\dataset\output.json"
 
-def load_corpus_and_embeddings():
-    global corpus, corpus_embeddings
-    with lock:
-        with open(CORPUS_FILE, "r", encoding="utf-8") as file:
-            corpus = [line.strip() for line in file if line.strip()]
-        corpus_embeddings = model.encode(corpus, convert_to_tensor=True)
-        print(f"Corpus reloaded: {len(corpus)} documents.")
+def load_issues():
+    global issues
+    with issues_lock:
+        with open(filename, 'r', encoding='utf-8') as f:
+            issues = json.load(f)
+        print(f"Loaded {len(issues)} issues.")
 
 # Initial load
-load_corpus_and_embeddings()
+load_issues()
+
+def extract_issue_key(query):
+    print(f'query : {query}')
+    match = re.search(r'([A-Z]+-\d+)', query)
+    print(f'match : {match}')
+    return match.group(1) if match else None
+
+def extract_field_name(query):
+    # Try to extract the field requested (e.g. "description", "summary", etc.)
+    # Looks for phrases like "the <field> of Issue" or "for Issue"
+    match = re.search(r'(?:the|show|give|provide|what is|who is|list|display)\s+([\w\s/-]+?)(?:\s+of|\s+for)?\s+Issue', query, re.IGNORECASE)
+    if match:
+        return match.group(1).strip()
+    # fallback: last word before 'of Issue'
+    match = re.search(r'([\w\s/-]+)\s+of Issue', query, re.IGNORECASE)
+    if match:
+        return match.group(1).strip()
+    return None
+
+def semantic_field_match(requested_field, issue_dict):
+
+    # Get all field names from the issue
+    field_names = list(issue_dict.keys())
+    # Encode the requested field and all actual field names
+    embeddings = model.encode([requested_field] + field_names)
+    query_emb = embeddings[0]
+    field_embs = embeddings[1:]
+    # Compute semantic similarity
+    scores = util.cos_sim(query_emb, field_embs)[0]
+    best_idx = int(scores.argmax())
+    return field_names[best_idx], float(scores[best_idx])
 
 @app.route('/query', methods=['POST'])
 def query():
+    print(0)
     data = request.get_json()
+    print(1)
     query_text = data.get("query", "")
-    if not query_text:
-        return jsonify({"error": "Query text is required."}), 400
+    print(2)
 
-    with lock:
-        query_embedding = model.encode(query_text, convert_to_tensor=True)
-        cos_scores = util.cos_sim(query_embedding, corpus_embeddings)
-        top_result = int(cos_scores.argmax())
-        answer = corpus[top_result]
+    issue_key = extract_issue_key(query_text)
+    print(3)
 
-    return jsonify({
-        "query": query_text,
-        "most_similar": answer
-    })
+    requested_field = extract_field_name(query_text)
+    print(4)
+
+    if not issue_key or not requested_field:
+        return jsonify({"error": "Could not extract issue key or field from query.", "query": query_text}), 400
+    print(5)
+
+    with issues_lock:
+        for issue in issues:
+            if issue.get("Issue key", "").upper() == issue_key.upper():
+                field_name, score = semantic_field_match(requested_field, issue)
+                value = issue.get(field_name, "Not found")
+                return jsonify({
+                    "issue_key": issue_key,
+                    "matched_field": field_name,
+                    "similarity": round(score, 3),
+                    "value": value,
+                    "query": query_text
+                })
+
+    return jsonify({"error": f"Issue {issue_key} not found.", "query": query_text}), 404
 
 @app.route('/reload', methods=['POST'])
 def reload_corpus():
-    load_corpus_and_embeddings()
-    return jsonify({"status": "Corpus reloaded.", "num_documents": len(corpus)})
+    load_issues()
+    with issues_lock:
+        num_documents = len(issues)
+    return jsonify({"status": "Corpus reloaded.", "num_documents": num_documents})
 
 if __name__ == '__main__':
-    app.run(host="0.0.0.0", port=5000)
+    app.run(debug=True)

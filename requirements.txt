@@ -46,3 +46,8 @@ isort>=5.9.3
 
 jproperties
 flask
+
+transformers
+sentence-transformers
+faiss-cpu
+gradio
