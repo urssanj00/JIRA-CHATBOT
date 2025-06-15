@@ -13,7 +13,10 @@ def csv_to_json(csv_file_path, json_file_path):
         json.dump(data, json_file, indent=4)
 
 if __name__ == "__main__":
-    csv_path = r"C:\Sanjeev\VNIT_CLASSES\NLP_PROJ\dataset\test_jira_data_set.csv"  # Path to your CSV file
-    json_path = r"C:\Sanjeev\VNIT_CLASSES\NLP_PROJ\dataset\output.json"            # Output JSON file path
+     home_path= '/Users/sanjeev/VNIT/JIRA-CHATBOT'
+    # ------ Pre-compute data (run once) ------
+    csv_path = f'{home_path}/dataset/GFG_FINAL.csv'
+    csv_path = f"{home_path}/test_jira_data_set.csv"  # Path to your CSV file
+    json_path = f"{home_path}/dataset/output.json"            # Output JSON file path
     csv_to_json(csv_path, json_path)
     print(f"CSV data has been converted to JSON and saved to {json_path}")

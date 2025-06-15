@@ -14,6 +14,8 @@ import pandas as pd
 from sentence_transformers import SentenceTransformer
 import time
 from tqdm import tqdm
+import gradio as gr
+
 
 # --- Step 1: Pre-compute and save text chunks and embeddings ---
 def precompute_data(csv_path, output_dir):
@@ -328,19 +330,17 @@ def chatbot_with_precomputed_data(embeddings_path, texts_path, metadata_path=Non
 if __name__ == "__main__":
     # Example usage:
     # Uncomment one of these sections to either pre-compute or run with pre-computed data
-    home_path= '/Users/sanjeev/VNIT/JIRA-CHATBOT'
-    # ------ Pre-compute data (run once) ------
-    csv_path = f'{home_path}/dataset/GFG_FINAL.csv'
-    output_dir = f'{home_path}/precomputed_data'
     
+    # ------ Pre-compute data (run once) ------
+    csv_path = r'D:\VNIT_Mtech\Subjects\11.NLP\NLP_project\Jira_dataset\archive\GFG_FINAL.csv'
+    output_dir = r'D:\VNIT_Mtech\Subjects\11.NLP\NLP_project\precomputed_data'
     #result = precompute_data(csv_path, output_dir)
     #print(f"Pre-computed data saved to {output_dir}")
-    
     # ------ Run chatbot with pre-computed data (fast startup) ------
-    # Uncomment this section after pre-computing data
+    # Uncomment this section after pre-computing datahow
     
-    embeddings_path = f'{home_path}/precomputed_data/embeddings.npy'
-    texts_path = f'{home_path}/precomputed_data/text_chunks.pkl'
-    metadata_path = f'{home_path}/precomputed_data/metadata.pkl'
+    embeddings_path = r'D:\VNIT_Mtech\Subjects\11.NLP\NLP_project\precomputed_data\embeddings.npy'
+    texts_path = r'D:\VNIT_Mtech\Subjects\11.NLP\NLP_project\precomputed_data\text_chunks.pkl'
+    metadata_path = r'D:\VNIT_Mtech\Subjects\11.NLP\NLP_project\precomputed_data\metadata.pkl'
     
     chatbot_with_precomputed_data(embeddings_path, texts_path, metadata_path)
