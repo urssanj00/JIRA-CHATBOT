@@ -70,7 +70,7 @@ class EnhancedJiraChatbot:
         text = re.sub(r'!\S+\.\S+!', '', text)
         text = re.sub(r'[^\w\s\-\.\,\:\;]', ' ', text)
         text = re.sub(r'\s+', ' ', text).strip()
-        logger.info(f"preprocess_text : {text}")
+       # logger.info(f"preprocess_text : {text}")
         return text
     
     def create_smart_chunks(self, df: pd.DataFrame) -> List[Dict[str, Any]]:
@@ -113,10 +113,30 @@ class EnhancedJiraChatbot:
                 'metadata': summary_chunk['metadata'].copy()
             }
             chunks.append(categorical_chunk)
-            logger.info(f"create_smart_chunks : {chunks}")
+         #   logger.info(f"create_smart_chunks : {chunks}")
 
         return chunks
-    
+
+    def remove_sparse_columns(self, datafrm):
+        # Load the CSV
+        
+
+        # Get count of non-null entries per column
+        non_null_counts = datafrm.count()
+
+        # Identify columns to be removed (≤ 10 non-null values)
+        cols_to_remove = non_null_counts[non_null_counts <= 100].index.tolist()
+
+        # Print or log removed columns
+        print("Columns removed (≤ 10 non-null records):")
+        for col in cols_to_remove:
+            print(col)
+
+        # Drop those columns from the DataFrame
+        df_filtered = datafrm.drop(columns=cols_to_remove)
+        return df_filtered
+ 
+
     def train_from_csv(self, csv_path: str, progress_callback=None) -> bool:
         """Train the chatbot from CSV file with progress tracking"""
         try:
@@ -126,6 +146,7 @@ class EnhancedJiraChatbot:
             
             # Load CSV
             df = pd.read_csv(csv_path)
+            df = self.remove_sparse_columns(df)
             
             self.training_status = "Creating chunks..."
             if progress_callback:
