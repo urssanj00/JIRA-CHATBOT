@@ -32,12 +32,26 @@ class EnhancedJiraChatbot:
         self.training_status = "Not started"
         
         # Better reflection patterns for query understanding
+
         self.reflection_patterns = {
-            'count_keywords': ['how many', 'count', 'number of', 'total', 'sum'],
-            'statistical_keywords': ['average', 'mean', 'median', 'percentage', 'ratio'],
-            'filter_keywords': ['show me', 'list', 'find', 'get', 'filter', 'status of'],
-            'factual_keywords': ['what is', 'who is', 'when was', 'where is', 'why']
+            'count_keywords': [ 
+                'how many', 'count', 'number of', 'total', 'sum', 'volume of',
+                'frequency of', 'occurrences of', 'how often', 'tally', 'aggregate number'
+                ],
+            'statistical_keywords': [
+                'average', 'mean', 'median', 'percentage', 'ratio', 'standard deviation',
+                'variance', 'min', 'max', 'range', 'distribution', 'stats', 'statistics of'
+                ],
+            'filter_keywords': [
+                'show me', 'list', 'find', 'get', 'filter', 'status of', 'retrieve', 'search for',
+                'display', 'only those', 'give me', 'which have', 'that match', 'having', 'with'
+                ],
+            'factual_keywords': [
+                'what is', 'who is', 'when was', 'where is', 'why', 'define', 'explain',
+                'tell me about', 'give details on', 'describe', 'what does', 'name', 'identify'
+                ]
         }
+
     
     def preprocess_text(self, text: str) -> str:
         """Enhanced text preprocessing with better cleaning"""
