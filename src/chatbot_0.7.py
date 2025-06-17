@@ -19,6 +19,7 @@ from collections import Counter
 import threading
 import time
 from logger_config import logger
+from logger_config import properties
 
 class EnhancedJiraChatbot:
     def __init__(self, model_name: str = 'all-MiniLM-L6-v2'):
@@ -34,6 +35,9 @@ class EnhancedJiraChatbot:
         self.training_status = "Not started"
         
         # Better reflection patterns for query understanding
+                
+        self.model_save_dir = properties["model_path"]
+        logger.info(f"EnhancedJiraChatbot :{self.model_save_dir}")
 
         self.reflection_patterns = {
             'count_keywords': [ 
@@ -66,6 +70,7 @@ class EnhancedJiraChatbot:
         text = re.sub(r'!\S+\.\S+!', '', text)
         text = re.sub(r'[^\w\s\-\.\,\:\;]', ' ', text)
         text = re.sub(r'\s+', ' ', text).strip()
+        logger.info(f"preprocess_text : {text}")
         return text
     
     def create_smart_chunks(self, df: pd.DataFrame) -> List[Dict[str, Any]]:
@@ -108,7 +113,8 @@ class EnhancedJiraChatbot:
                 'metadata': summary_chunk['metadata'].copy()
             }
             chunks.append(categorical_chunk)
-        
+            logger.info(f"create_smart_chunks : {chunks}")
+
         return chunks
     
     def train_from_csv(self, csv_path: str, progress_callback=None) -> bool:
@@ -159,6 +165,8 @@ class EnhancedJiraChatbot:
             self.training_status = "Training completed successfully!"
             if progress_callback:
                 progress_callback("Training completed successfully!")
+                logger.info(f"Training completed successfully!")
+
             
             return True
             
@@ -413,7 +421,36 @@ def create_interface():
                     "What is the status of SRCTREEWIN-14221?",
                     "Show me high priority issues",
                     "List all issues in Short Term Backlog",
-                    "What types of issues are most common?"
+                    "What types of issues are most common?",
+                    "What is the total number of issues in the dataset?",
+                    "What is the total number of issues in month of March?",
+                    "How many Critical Issues are raised in Month of March?",
+                    "What are the different issue types present in the data?",
+                    "List all unique project names and their corresponding project keys.",
+                    "What are the different statuses an issue can have?",
+                    "Can you provide the summary and description for the issue with the key \"SRCTREEWIN-14000\"?",
+                    "What is the summary of the issue \"SRCTREEWIN-13894\" and what is the core problem described?"
+                    "Explain the problem described in the issue \"SRCTREEWIN-13513\".",
+                    "What is the error message for the issue \"SRCTREEWIN-12481\" related to \"Git not found\"?",
+                    "Describe the issue where \"Closing a branch with one commit does not create a new commit\" (SRCTREEWIN-13668)." 
+                    #"Filtering and Grouping",
+                    "How many issues have the status \"Needs Triage\"?",
+                    "List all issues that are categorized as \"Bug\". ",
+                    "Which issues are related to \"OAuth\" problems? ",
+                    "Group issues by \"Project key\" and count the number of issues in each project.",
+                    "Identify issues where the \"Resolution\" is \"Fixed\". ",
+                    "Which issues have \"Git\" as a component? ",
+                    "List issues created by the reporter \"b2c3c286f465\". ",
+                    #"Temporal Analysis",
+                    "What is the creation date for the issue \"SRCTREEWIN-14000\"? ",
+                    "Find the most recently updated issue in the dataset. ",
+                    "How many issues were created in the year 2022? ",
+                    "List all issues that have been resolved and their resolution dates. ",
+                    "Advanced Analysis and Summarization",
+                    "Summarize the common themes or problems identified across the \"Bug\" issue types. ",
+                    "Are there any issues that seem to be duplicates or closely related based on their summaries or descriptions? (e.g., \"OAuth token keeps expiring\" and \"OAuth Fails, Unable to get Secret\"). ",
+                    "Based on the descriptions, what are some of the technical details mentioned in the issues? ",
+                    "What are the different versions affected by the reported bugs?" 
                 ],
                 inputs=msg
             )
