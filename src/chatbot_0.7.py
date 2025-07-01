@@ -124,7 +124,7 @@ class EnhancedJiraChatbot:
         # Get count of non-null entries per column
         non_null_counts = datafrm.count()
 
-        # Identify columns to be removed (≤ 10 non-null values)
+        # Identify columns to be removed (≤ 100 non-null values)
         cols_to_remove = non_null_counts[non_null_counts <= 100].index.tolist()
 
         # Print or log removed columns
